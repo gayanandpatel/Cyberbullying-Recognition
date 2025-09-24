@@ -1,88 +1,88 @@
-# importing libraries
 
-from ctypes import alignment
-from urllib import response
-import pandas as pd
 import streamlit as st
-import altair as alt
 from PIL import Image
-import pandas as pd
-import numpy as np
-import re
-import string
-from nltk.stem import WordNetLemmatizer
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.preprocessing import LabelEncoder
-from nltk.tokenize import RegexpTokenizer
-from nltk import PorterStemmer, WordNetLemmatizer
-from functions import *
-import pickle
+# This function should contain all your ML model loading and prediction logic
+from functions import custom_input_prediction
 
-# Page title
+# --- Page Setup ---
+# Set the page title and icon
+st.set_page_config(page_title="Cyberbullying Recognition", page_icon="🛡️")
 
-image = Image.open('images/logo.png')
+# --- Header and Logo ---
+try:
+    image = Image.open('images/logo.png')
+    st.image(image, use_container_width=True)
+except FileNotFoundError:
+    st.error("Logo image not found. Make sure 'images/logo.png' is in the correct folder.")
 
-st.image(image, use_column_width= True)
+st.title("Cyberbullying Tweet Recognition App")
 
-st.write('''
-# Cyberbulling Tweet Recognition App
+st.write("""
+This app predicts the nature of a tweet across 6 categories:
+- Age
+- Ethnicity
+- Gender
+- Religion
+- Other Cyberbullying
+- Not Cyberbullying
+""")
+st.divider()
 
-This app predicts the nature of the tweet into 6 Categories.
-* Age
-* Ethnicity
-* Gender
-* Religion
-* Other Cyberbullying
-* Not Cyberbullying
+# --- Tweet Input ---
+st.header('Enter Tweet')
+tweet_input = st.text_area("Tweet Input", height=150, placeholder="What's on your mind?", label_visibility="collapsed")
 
-***
-''')
+st.divider()
 
-# Text Box
-st.header('Enter Tweet ')
-tweet_input = st.text_area("Tweet Input", height= 150)
-print(tweet_input)
-st.write('''
-***
-''')
-
-# print input on webpage
-st.header("Entered Tweet text ")
+# --- Prediction and Output ---
+# This block only runs if the user has entered some text
 if tweet_input:
-    tweet_input
-else:
-    st.write('''
-    ***No Tweet Text Entered!***
-    ''')
-st.write('''
-***
-''')
+    # Display the user's input
+    st.subheader("Entered Tweet")
+    st.write(tweet_input)
 
-# Output on the page
-st.header("Prediction")
-if tweet_input:
+    # Perform prediction using the function from functions.py
     prediction = custom_input_prediction(tweet_input)
-    if prediction == "Age":
-        st.image("images/age_cyberbullying.png",use_column_width= True)
-    elif prediction == "Ethnicity":
-        st.image("images/ethnicity_cyberbullying.png",use_column_width= True)
-    elif prediction == "Gender":
-        st.image("images/gender_cyberbullying.png",use_column_width= True)
-    elif prediction == "Not Cyberbullying":
-        st.image("images/not_cyberbullying.png",use_column_width= True)
-    elif prediction == "Other Cyberbullying":
-        st.image("images/other_cyberbullying.png",use_column_width= True)
-    elif prediction == "Religion":
-        st.image("images/religion_cyberbullying.png",use_column_width= True)
+
+    # A dictionary to map prediction results to their corresponding images
+    image_mapping = {
+        "Age": "images/age_cyberbullying.png",
+        "Ethnicity": "images/ethnicity_cyberbullying.png",
+        "Gender": "images/gender_cyberbullying.png",
+        "Not Cyberbullying": "images/not_cyberbullying.png",
+        "Other Cyberbullying": "images/other_cyberbullying.png",
+        "Religion": "images/religion_cyberbullying.png"
+    }
+
+    # Display the prediction result
+    st.subheader("Prediction")
+    st.info(f"The tweet is classified as: **{prediction}**")
+
+    # Display the corresponding image for the prediction
+    image_path = image_mapping.get(prediction)
+    if image_path:
+        try:
+            result_image = Image.open(image_path)
+            st.image(result_image, use_container_width=True)
+        except FileNotFoundError:
+            st.error(f"Result image not found at '{image_path}'.")
+    else:
+        st.warning("No result image available for this prediction category.")
+
 else:
-    st.write('''
-    ***No Tweet Text Entered!***
-    ''')
+    # Message to show when no text is entered
+    st.info("Please enter a tweet in the text box above to see a prediction.")
 
-st.write('''***''')
+st.divider()
 
-# About section
-expand_bar = st.expander("About")
-expand_bar.markdown()
+# --- About Section ---
+with st.expander("About this App"):
+    st.markdown("""
+        **How does it work?**
+        1. You enter text from a tweet into the input box.
+        2. The app processes this text.
+        3. A pre-trained machine learning model predicts which category of cyberbullying the tweet belongs to.
+        4. The prediction and a corresponding image are displayed.
+
+        *This application is for demonstration purposes only.*
+    """)

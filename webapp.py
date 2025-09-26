@@ -4,86 +4,83 @@ from PIL import Image
 from functions import custom_input_prediction
 
 # --- Page Setup ---
-st.set_page_config(page_title="Cyberbullying Recognition", page_icon="🛡️", layout="centered")
+st.set_page_config(page_title="Cyberbullying Recognition", page_icon="🛡️", layout="wide")
 
-# --- Redesigned Header ---
-col1, col2 = st.columns([1, 5], vertical_alignment="center")
-
+# --- Header ---
+col1, col2 = st.columns([1, 10], vertical_alignment="center")
 with col1:
     try:
         image = Image.open('images/logo.png')
         st.image(image, width=100)
     except FileNotFoundError:
         st.error("Logo not found.")
-
 with col2:
     st.title("Cyberbullying Recognition")
     st.caption("An AI-powered tool for analyzing tweet content.")
-
-st.write("""
-This app predicts if a tweet falls into one of 6 categories: **Age, Ethnicity, Gender, Religion, Other Cyberbullying,** or **Not Cyberbullying.**
-""")
 st.divider()
 
-# --- Tweet Input Form ---
-# By wrapping the input and button in a form, both Ctrl+Enter and the button click will work.
-st.header('Enter Tweet for Analysis')
+# --- Main Two-Column Layout ---
+left_column, right_column = st.columns(2)
 
-with st.form(key='tweet_form'):
-    tweet_input = st.text_area(
-        "Tweet Input",
-        height=150,
-        placeholder="Paste or type a tweet here...",
-        label_visibility="collapsed"
-    )
-    
-    # Use st.form_submit_button instead of st.button
-    submitted = st.form_submit_button("Analyze Text")
+# --- LEFT COLUMN (INPUT) ---
+with left_column:
+    st.header("Analyze a Tweet")
+    st.markdown("Enter the text below and click 'Analyze' to see the classification on the right.")
 
+    with st.form(key='tweet_form'):
+        tweet_input = st.text_area(
+            "Tweet Text",
+            height=200,
+            placeholder="What's on your mind?",
+            label_visibility="collapsed"
+        )
+        submitted = st.form_submit_button("Analyze Text", use_container_width=True)
 
-# --- Prediction and Output ---
-# This logic now runs when the form is submitted.
-if submitted:
-    if tweet_input:
-        st.divider()
+# --- RIGHT COLUMN (OUTPUT) ---
+with right_column:
+    if submitted:
+        if tweet_input:
+            prediction = custom_input_prediction(tweet_input)
+            image_mapping = {
+                "Age": "images/age_cyberbullying.png",
+                "Ethnicity": "images/ethnicity_cyberbullying.png",
+                "Gender": "images/gender_cyberbullying.png",
+                "Not Cyberbullying": "images/not_cyberbullying.png",
+                "Other Cyberbullying": "images/other_cyberbullying.png",
+                "Religion": "images/religion_cyberbullying.png"
+            }
 
-        prediction = custom_input_prediction(tweet_input)
+            st.header("Analysis Result")
+            st.markdown("The model classified the tweet as:")
 
-        image_mapping = {
-            "Age": "images/age_cyberbullying.png",
-            "Ethnicity": "images/ethnicity_cyberbullying.png",
-            "Gender": "images/gender_cyberbullying.png",
-            "Not Cyberbullying": "images/not_cyberbullying.png",
-            "Other Cyberbullying": "images/other_cyberbullying.png",
-            "Religion": "images/religion_cyberbullying.png"
-        }
-
-        st.subheader("Analysis Result")
-        st.info(f"The tweet is classified as: **{prediction}**")
-
-        image_path = image_mapping.get(prediction)
-        if image_path:
-            try:
-                result_image = Image.open(image_path)
-                st.image(result_image, caption=f"Category: {prediction}", use_container_width=True)
-            except FileNotFoundError:
-                st.error(f"Result image not found at '{image_path}'.")
+            with st.container(border=True):
+                col_result, col_image = st.columns([2, 1], vertical_alignment="center")
+                with col_result:
+                    st.subheader(f"{prediction}")
+                with col_image:
+                    image_path = image_mapping.get(prediction)
+                    if image_path:
+                        try:
+                            result_image = Image.open(image_path)
+                            # INCREASED IMAGE WIDTH HERE
+                            st.image(result_image, width=200) # Increased from 100 to 200
+                        except FileNotFoundError:
+                            st.error("Img not found.")
         else:
-            st.warning("No result image available for this prediction category.")
+            st.warning("Please enter a tweet in the text box on the left to analyze.")
     else:
-        st.warning("Please enter a tweet to analyze.")
+        st.info("Your analysis results will appear here.")
 
-st.divider()
 
 # --- About Section ---
+st.divider()
 with st.expander("About this App"):
     st.markdown("""
         **How does it work?**
-        1. You enter the text of a tweet into the input box.
-        2. Click the 'Analyze Text' button or press `Ctrl+Enter`.
-        3. Our pre-trained machine learning model analyzes the text.
-        4. The model predicts the most likely category of cyberbullying.
-        5. The prediction is displayed along with a corresponding image.
+        1. You enter the text of a tweet on the left.
+        2. Click 'Analyze Text' or press `Ctrl+Enter`.
+        3. A pre-trained machine learning model classifies the text.
+        4. The result is displayed instantly on the right.
 
-        ***Disclaimer:*** *This application is for demonstration purposes only and should not be used for making real-world decisions.*
+        ***Disclaimer:*** *This application is for demonstration purposes only. Designed by Gayanand Patel*
         """)

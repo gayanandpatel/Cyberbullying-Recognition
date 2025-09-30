@@ -19,10 +19,10 @@ with col2:
     st.caption("An AI-powered tool for analyzing tweet content.")
 st.divider()
 
-# --- Main Two-Column Layout ---
+
 left_column, right_column = st.columns(2)
 
-# --- LEFT COLUMN (INPUT) ---
+
 with left_column:
     st.header("Analyze a Tweet")
     st.markdown("Enter the text below and click 'Analyze' to see the classification on the right.")
@@ -36,7 +36,7 @@ with left_column:
         )
         submitted = st.form_submit_button("Analyze Text", use_container_width=True)
 
-# --- RIGHT COLUMN (OUTPUT) ---
+
 with right_column:
     if submitted:
         if tweet_input:
@@ -62,8 +62,8 @@ with right_column:
                     if image_path:
                         try:
                             result_image = Image.open(image_path)
-                            # INCREASED IMAGE WIDTH HERE
-                            st.image(result_image, width=200) # Increased from 100 to 200
+                           
+                            st.image(result_image, width=200) 
                         except FileNotFoundError:
                             st.error("Img not found.")
         else:

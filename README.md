@@ -1,5 +1,5 @@
 # cyberbullying-tweet-prediction-app
-Web app Link: 
+Web app Link: https://cyberbullying-recognition-gayanand.streamlit.app/
 This app predicts the nature of the tweet into 6 Categories.
 
 * Age
